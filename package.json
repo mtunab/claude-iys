@@ -1,0 +1,16 @@
+{
+  "name": "claude-iys",
+  "version": "1.0.0",
+  "description": "YTÜ İngilizce Yeterlik Sınavı (İYS) hazırlık takip paneli — tek kullanıcılı yerel web uygulaması",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

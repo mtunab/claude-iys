@@ -1,0 +1,5 @@
+node_modules/
+
+# Runtime data — kullanıcıya özel, versiyonlanmaz
+data/db.json
+uploads/

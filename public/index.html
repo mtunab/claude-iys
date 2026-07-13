@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YTÜ İYS Takip Paneli</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-logo">📘</span>
+          <div>
+            <div class="brand-title">İYS Takip</div>
+            <div class="brand-sub">YTÜ Yeterlik Sınavı</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <button class="nav-item" data-view="dashboard">
+            <span class="nav-ico">📊</span> Dashboard
+          </button>
+          <button class="nav-item" data-view="grammar">
+            <span class="nav-ico">📚</span> Grammar
+          </button>
+          <button class="nav-item" data-view="questionTypes">
+            <span class="nav-ico">🧩</span> Soru Tipleri
+          </button>
+          <button class="nav-item" data-view="tasks">
+            <span class="nav-ico">✅</span> Günlük Görevler
+          </button>
+        </nav>
+        <div class="sidebar-foot">
+          <div id="streakBadge" class="streak">🔥 <span id="streakCount">0</span> gün</div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div id="view"></div>
+      </main>
+    </div>
+
+    <!-- Konu penceresi (modal) -->
+    <div id="modalRoot"></div>
+    <!-- Bildirim -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
