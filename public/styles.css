@@ -516,6 +516,135 @@ button {
   margin-top: 6px;
 }
 
+/* -------- Sınav sayacı -------- */
+.exam-countdown {
+  background: var(--ink-pill);
+  color: var(--ink-pill-fg);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  padding: 22px 26px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.exam-countdown-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  opacity: 0.65;
+  font-weight: 600;
+}
+.exam-countdown-num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-top: 6px;
+  color: var(--accent);
+}
+.exam-countdown-unit {
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 6px;
+  opacity: 0.75;
+}
+.exam-countdown-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+.exam-countdown-date {
+  font-size: 14px;
+  font-weight: 700;
+}
+.exam-countdown-day {
+  font-size: 12px;
+  opacity: 0.65;
+  margin-top: 2px;
+}
+
+/* -------- Takvim -------- */
+.cal-card {
+  display: flex;
+  flex-direction: column;
+}
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.cal-month-label {
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 108px;
+  text-align: center;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-weekday {
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding-bottom: 4px;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+.cal-empty {
+  visibility: hidden;
+}
+.cal-daynum {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.cal-today .cal-daynum {
+  background: var(--ink-pill);
+  color: var(--ink-pill-fg);
+}
+.cal-exam .cal-daynum {
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+.cal-exam.cal-today .cal-daynum {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.cal-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  position: absolute;
+  bottom: 1px;
+}
+
 /* Durum dağılım barı */
 .dist-bar {
   display: flex;

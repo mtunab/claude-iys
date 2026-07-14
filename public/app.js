@@ -23,6 +23,13 @@ let state = null;
 let currentView = 'dashboard';
 let openTopicId = null;
 
+const EXAM_DATE = '2026-08-24'; // İYS sınav tarihi
+
+let calendarViewDate = (() => {
+  const d = new Date();
+  return { year: d.getFullYear(), month: d.getMonth() }; // month: 0-11
+})();
+
 // ---------------------------------------------------------------------------
 // API yardımcıları
 // ---------------------------------------------------------------------------
@@ -180,6 +187,101 @@ function distBar(counts) {
     </div>`;
 }
 
+function pad2(n) {
+  return String(n).padStart(2, '0');
+}
+
+function daysUntilExam() {
+  const examDate = new Date(EXAM_DATE + 'T00:00:00');
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((examDate - todayMidnight) / 86400000);
+}
+
+function renderExamCountdown() {
+  const days = daysUntilExam();
+  const DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  const MONTHS = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+  ];
+  const examDateObj = new Date(EXAM_DATE + 'T00:00:00');
+
+  let numHtml;
+  let label;
+  if (days > 0) {
+    numHtml = days + '<span class="exam-countdown-unit">gün</span>';
+    label = 'İYS Sınavına';
+  } else if (days === 0) {
+    numHtml = 'Bugün';
+    label = 'İYS Sınavı';
+  } else {
+    numHtml = 'Geçti';
+    label = 'İYS Sınavı';
+  }
+
+  return `
+    <div class="exam-countdown">
+      <div>
+        <div class="exam-countdown-label">${label}</div>
+        <div class="exam-countdown-num">${numHtml}</div>
+      </div>
+      <div class="exam-countdown-right">
+        <div class="exam-countdown-date">${examDateObj.getDate()} ${MONTHS[examDateObj.getMonth()]} ${examDateObj.getFullYear()}</div>
+        <div class="exam-countdown-day">${DAYS[examDateObj.getDay()]}</div>
+      </div>
+    </div>`;
+}
+
+function renderCalendar() {
+  const { year, month } = calendarViewDate;
+  const MONTHS = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+  ];
+  const WEEKDAYS = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
+
+  const firstOfMonth = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = (firstOfMonth.getDay() + 6) % 7; // Pazartesi = 0
+
+  const todayKey = today();
+  const taskDates = new Set(state.tasks.map((t) => t.date));
+
+  let cells = '';
+  for (let i = 0; i < firstWeekday; i++) {
+    cells += `<div class="cal-cell cal-empty"></div>`;
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateKey = year + '-' + pad2(month + 1) + '-' + pad2(day);
+    const classes = ['cal-cell'];
+    if (dateKey === todayKey) classes.push('cal-today');
+    if (dateKey === EXAM_DATE) classes.push('cal-exam');
+    const hasTask = taskDates.has(dateKey);
+    cells += `
+      <div class="${classes.join(' ')}" title="${dateKey === EXAM_DATE ? 'İYS Sınavı' : ''}">
+        <span class="cal-daynum">${day}</span>
+        ${hasTask ? '<span class="cal-dot"></span>' : ''}
+      </div>`;
+  }
+
+  return `
+    <div class="card cal-card">
+      <div class="cal-head">
+        <h4 class="dashboard-h4" style="margin:0">Takvim</h4>
+        <div class="cal-nav">
+          <button class="icon-btn" data-cal-prev title="Önceki ay">‹</button>
+          <span class="cal-month-label">${MONTHS[month]} ${year}</span>
+          <button class="icon-btn" data-cal-next title="Sonraki ay">›</button>
+        </div>
+      </div>
+      <div class="cal-grid">
+        ${WEEKDAYS.map((w) => `<div class="cal-weekday">${w}</div>`).join('')}
+        ${cells}
+      </div>
+    </div>`;
+}
+
 function renderDashboard() {
   const g = statusCounts('grammar');
   const q = statusCounts('questionTypes');
@@ -214,6 +316,11 @@ function renderDashboard() {
         </div>
         <button class="btn btn-primary" data-nav="tasks">Görevlerim<span class="btn-arrow">→</span></button>
       </div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:16px">
+      ${renderCalendar()}
+      ${renderExamCountdown()}
     </div>
 
     <div class="grid stat-grid" style="margin-bottom:16px">
@@ -689,6 +796,29 @@ function wireDashboardToggles() {
       })
     );
   });
+
+  const prevBtn = document.querySelector('[data-cal-prev]');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      calendarViewDate.month--;
+      if (calendarViewDate.month < 0) {
+        calendarViewDate.month = 11;
+        calendarViewDate.year--;
+      }
+      render();
+    });
+  }
+  const nextBtn = document.querySelector('[data-cal-next]');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      calendarViewDate.month++;
+      if (calendarViewDate.month > 11) {
+        calendarViewDate.month = 0;
+        calendarViewDate.year++;
+      }
+      render();
+    });
+  }
 }
 
 function wireModal(topic) {
