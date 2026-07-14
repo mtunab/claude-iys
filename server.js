@@ -271,7 +271,7 @@ app.delete('/api/topics/:id/files/:fileId', (req, res) => {
   res.status(404).json({ error: 'Dosya bulunamadı.' });
 });
 
-// PDF görüntüleme/indirme
+// PDF / JPG görüntüleme/indirme
 app.get('/api/topics/:id/files/:fileId/raw', (req, res) => {
   const found = store.findTopic(req.params.id);
   if (!found) return res.status(404).send('Konu bulunamadı.');
@@ -281,7 +281,13 @@ app.get('/api/topics/:id/files/:fileId/raw', (req, res) => {
     if (entry) {
       const fullPath = path.join(topicDir(section, topic, k), entry.storedName);
       if (!fs.existsSync(fullPath)) return res.status(404).send('Dosya diskte yok.');
-      res.setHeader('Content-Type', 'application/pdf');
+
+      // Content-Type'ı dosya tipi bağlı olarak belirle
+      let contentType = 'application/octet-stream';
+      if (/\.pdf$/i.test(entry.originalName)) contentType = 'application/pdf';
+      else if (/\.(jpg|jpeg)$/i.test(entry.originalName)) contentType = 'image/jpeg';
+
+      res.setHeader('Content-Type', contentType);
       res.setHeader(
         'Content-Disposition',
         'inline; filename="' + encodeURIComponent(entry.originalName) + '"'
