@@ -52,15 +52,17 @@ hepsi düzenlenebilir/silinebilir.
 Tüm veri **yerel dosya sisteminde** tutulur (tarayıcı `localStorage`'a güvenilmez):
 
 ```
-data/db.json                                     # durumlar, sonuçlar, görevler
-uploads/<bölüm>/<konu-slug>_<id>/notlar/*.pdf    # tarih damgalı PDF'ler
-uploads/<bölüm>/<konu-slug>_<id>/testler/*.pdf
+data/db.json                                          # durumlar, sonuçlar, görevler
+data/uploads/<bölüm>/<konu-slug>_<id>/notlar/*.pdf    # tarih damgalı PDF'ler
+data/uploads/<bölüm>/<konu-slug>_<id>/testler/*.pdf
 ```
 
 PDF adları otomatik tarih eklenerek kaydedilir, örn:
 `essay_test_2026-07-13_*.pdf`
 
-`data/` ve `uploads/` klasörleri `.gitignore`'dadır — kişisel içerik versiyonlanmaz.
+`data/` klasörü `.gitignore`'dadır — kişisel içerik versiyonlanmaz. Railway gibi
+platformlarda `data/` klasörünü tek bir kalıcı volume olarak mount etmek yeterlidir
+(hem veritabanı hem yüklenen dosyalar aynı klasör altında saklanır).
 
 ## Teknik
 

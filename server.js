@@ -10,7 +10,7 @@ const store = require('./lib/store');
 const app = express();
 const PORT = process.env.PORT || 4173;
 
-const UPLOAD_DIR = path.join(__dirname, 'uploads');
+const UPLOAD_DIR = path.join(__dirname, 'data', 'uploads');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
