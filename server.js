@@ -49,10 +49,12 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf' || /\.pdf$/i.test(file.originalname)) {
+    const isPdf = file.mimetype === 'application/pdf' || /\.pdf$/i.test(file.originalname);
+    const isImage = /^image\/(jpeg|jpg)$/i.test(file.mimetype) || /\.(jpg|jpeg)$/i.test(file.originalname);
+    if (isPdf || isImage) {
       cb(null, true);
     } else {
-      cb(new Error('Sadece PDF dosyaları yüklenebilir.'));
+      cb(new Error('Sadece PDF ve JPG dosyaları yüklenebilir.'));
     }
   },
 });

@@ -396,10 +396,16 @@ function renderTasks() {
 // Topic modal
 // ---------------------------------------------------------------------------
 
+function getFileIcon(filename) {
+  if (/\.pdf$/i.test(filename)) return '📄';
+  if (/\.(jpg|jpeg)$/i.test(filename)) return '🖼️';
+  return '📎';
+}
+
 function fileList(topic, kind) {
   const files = topic[kind];
   if (!files.length) {
-    return `<div class="empty-hint">Henüz ${kind === 'notes' ? 'not' : 'test'} PDF'i yok.</div>`;
+    return `<div class="empty-hint">Henüz ${kind === 'notes' ? 'not' : 'test'} dosyası yok.</div>`;
   }
   return `<div class="file-list">${files
     .map(
@@ -407,7 +413,7 @@ function fileList(topic, kind) {
       <div class="file-row">
         <span class="file-name" data-view-file="${topic.id}/${f.id}" title="${esc(
         f.originalName
-      )}">📄 ${esc(f.originalName)}</span>
+      )}">${getFileIcon(f.originalName)} ${esc(f.originalName)}</span>
         <span class="file-date">${fmtDate(f.date)}</span>
         <button class="icon-btn" data-del-file="${topic.id}/${f.id}/${kind}" title="Sil">🗑</button>
       </div>`
@@ -471,16 +477,16 @@ function openTopic(id) {
             <div>
               <h4>📄 Notlar</h4>
               <label class="btn btn-sm upload-btn" style="display:inline-block">
-                + PDF Yükle
-                <input type="file" accept="application/pdf" data-upload="notes" />
+                + Yükle (PDF/JPG)
+                <input type="file" accept=".pdf,image/jpeg,.jpg" data-upload="notes" />
               </label>
               ${fileList(topic, 'notes')}
             </div>
             <div>
               <h4>📝 Testler</h4>
               <label class="btn btn-sm upload-btn" style="display:inline-block">
-                + PDF Yükle
-                <input type="file" accept="application/pdf" data-upload="tests" />
+                + Yükle (PDF/JPG)
+                <input type="file" accept=".pdf,image/jpeg,.jpg" data-upload="tests" />
               </label>
               ${fileList(topic, 'tests')}
             </div>
