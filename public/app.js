@@ -193,20 +193,38 @@ function renderDashboard() {
 
   const recent = recentResults(5);
 
+  const now = new Date();
+  const DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  const MONTHS = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+  ];
+  const remaining = totalTopics - greenTotal;
+
   return `
-    <div class="page-head">
+    <div class="dash-hero">
       <div>
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-sub">Tek bakışta İYS hazırlık durumun</p>
+        <h1 class="dash-greet">Kolay gelsin.<br/><span class="greet-dim">Sınava hazırlanmaya devam.</span></h1>
+        <p class="dash-greet-sub">${greenTotal} konu pekişti · ${remaining} konu seni bekliyor</p>
+      </div>
+      <div class="dash-hero-side">
+        <div class="date-chip">
+          <span class="date-chip-day">${now.getDate()}</span>
+          <span class="date-chip-rest">${DAYS[now.getDay()]},<br/>${MONTHS[now.getMonth()]}</span>
+        </div>
+        <button class="btn btn-primary" data-nav="tasks">Görevlerim<span class="btn-arrow">→</span></button>
       </div>
     </div>
 
     <div class="grid stat-grid" style="margin-bottom:16px">
-      <div class="stat-card">
-        <div class="stat-label">Genel İlerleme</div>
-        <div class="progress-block">
-          <div class="stat-value">${pct}%</div>
-          <div class="stat-hint">${greenTotal}/${totalTopics} konu pekişti</div>
+      <div class="stat-card stat-ring-card">
+        <div class="progress-ring" style="background:conic-gradient(var(--accent) ${pct * 3.6}deg, var(--ring-track) 0)">
+          <div class="progress-ring-in"><b>${pct}%</b><span>pekişti</span></div>
+        </div>
+        <div>
+          <div class="stat-label">Genel İlerleme</div>
+          <div class="stat-value">${greenTotal}/${totalTopics}</div>
+          <div class="stat-hint">konu pekişti</div>
         </div>
       </div>
 
@@ -548,6 +566,11 @@ function wireView() {
     el.addEventListener('click', () => openTopic(el.dataset.open));
   });
 
+  // Sayfa içi görünüm geçişleri (örn. dashboard'daki "Görevlerim" butonu)
+  document.querySelectorAll('[data-nav]').forEach((el) => {
+    el.addEventListener('click', () => navigate(el.dataset.nav));
+  });
+
   if (currentView === 'grammar' || currentView === 'questionTypes') {
     wireSection(currentView);
   }
@@ -830,7 +853,7 @@ const THEME_KEY = 'iys-theme';
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', theme === 'dark' ? '#1b1815' : '#f4f1ea');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#161513' : '#efeeec');
 }
 
 function initTheme() {
