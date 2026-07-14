@@ -45,19 +45,24 @@ function topicDir(section, topic, kind) {
 }
 
 // Multer: dosyaları geçici belleğe alır; hedef yolu topic bilindikten sonra yazarız
+// Not: dosya adı/mimetype'a güvenmiyoruz — Google Drive gibi kaynaklardan gelen
+// dosyalarda bunlar eksik/genel (application/octet-stream) olabiliyor. Gerçek tip
+// tespiti, dosya baytları elde edildikten sonra detectFileType() ile yapılır.
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
-  fileFilter: (req, file, cb) => {
-    const isPdf = file.mimetype === 'application/pdf' || /\.pdf$/i.test(file.originalname);
-    const isImage = /^image\/(jpeg|jpg)$/i.test(file.mimetype) || /\.(jpg|jpeg)$/i.test(file.originalname);
-    if (isPdf || isImage) {
-      cb(null, true);
-    } else {
-      cb(new Error('Sadece PDF ve JPG dosyaları yüklenebilir.'));
-    }
-  },
 });
+
+// Dosya içeriğinin ilk baytlarına (magic number) bakarak gerçek tipini tespit eder.
+function detectFileType(buffer) {
+  if (buffer.length >= 4 && buffer.slice(0, 4).toString('ascii') === '%PDF') {
+    return { ext: '.pdf', contentType: 'application/pdf' };
+  }
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return { ext: '.jpg', contentType: 'image/jpeg' };
+  }
+  return null;
+}
 
 function fixTurkishFilename(name) {
   // multer latin1 olarak çözebilir; utf8'e çevirmeyi dene
@@ -227,16 +232,20 @@ app.post('/api/topics/:id/files', upload.single('file'), (req, res) => {
     return res.status(400).json({ error: 'Dosya bulunamadı.' });
   }
 
+  const detected = detectFileType(req.file.buffer);
+  if (!detected) {
+    return res.status(400).json({ error: 'Sadece PDF ve JPG dosyaları yüklenebilir.' });
+  }
+
   const dir = topicDir(section, topic, kind);
   fs.mkdirSync(dir, { recursive: true });
 
   const original = fixTurkishFilename(req.file.originalname);
   const dateStamp = today();
   const kindLabel = kind === 'notes' ? 'not' : 'test';
-  const ext = /\.(jpe?g)$/i.test(original) ? '.jpg' : '.pdf';
   // örn. modal-verbs_test_2026-07-13.pdf  (çakışmayı önlemek için kısa id eki)
   const base = slugify(topic.name) + '_' + kindLabel + '_' + dateStamp;
-  const storedName = base + '_' + store.id() + ext;
+  const storedName = base + '_' + store.id() + detected.ext;
   const fullPath = path.join(dir, storedName);
   fs.writeFileSync(fullPath, req.file.buffer);
 
@@ -244,6 +253,7 @@ app.post('/api/topics/:id/files', upload.single('file'), (req, res) => {
     id: store.id(),
     originalName: original,
     storedName,
+    contentType: detected.contentType,
     date: dateStamp,
     size: req.file.size,
   };
@@ -283,10 +293,11 @@ app.get('/api/topics/:id/files/:fileId/raw', (req, res) => {
       const fullPath = path.join(topicDir(section, topic, k), entry.storedName);
       if (!fs.existsSync(fullPath)) return res.status(404).send('Dosya diskte yok.');
 
-      // Content-Type'ı dosya tipi bağlı olarak belirle
-      let contentType = 'application/octet-stream';
-      if (/\.pdf$/i.test(entry.originalName)) contentType = 'application/pdf';
-      else if (/\.(jpg|jpeg)$/i.test(entry.originalName)) contentType = 'image/jpeg';
+      // Content-Type'ı yükleme sırasında tespit edilen gerçek tipten al;
+      // eski kayıtlarda yoksa storedName uzantısına düş.
+      const contentType =
+        entry.contentType ||
+        (/\.pdf$/i.test(entry.storedName) ? 'application/pdf' : 'image/jpeg');
 
       res.setHeader('Content-Type', contentType);
       res.setHeader(
