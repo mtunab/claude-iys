@@ -783,26 +783,218 @@ textarea {
   grid-template-columns: 1.4fr 1fr;
   gap: 16px;
 }
+
+/* =========================================================================
+ * Mobil (iPhone vb.) — sidebar alt tab bar'a dönüşür
+ * ========================================================================= */
 @media (max-width: 900px) {
   .two-col {
     grid-template-columns: 1fr;
   }
+
   #app {
-    grid-template-columns: 1fr;
+    display: block;
   }
+
+  /* Üst marka şeridi: sabit, ince */
   .sidebar {
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     height: auto;
+    width: 100%;
     flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: max(10px, env(safe-area-inset-top)) 16px 10px;
+    gap: 0;
+    z-index: 40;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
   }
+
+  .brand {
+    padding: 0;
+  }
+  .brand-logo {
+    font-size: 24px;
+  }
+  .brand-title {
+    font-size: 15px;
+  }
+  .brand-sub {
+    display: none;
+  }
+
+  /* Nav: alt sabit tab bar */
   .nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
     flex-direction: row;
-    flex-wrap: wrap;
-    flex: 1;
+    gap: 0;
+    background: linear-gradient(180deg, var(--bg-2), var(--bg));
+    border-top: 1px solid var(--border);
+    padding: 6px max(6px, env(safe-area-inset-left)) max(6px, env(safe-area-inset-bottom));
+    z-index: 40;
   }
+  .nav-item {
+    flex-direction: column;
+    flex: 1;
+    gap: 3px;
+    padding: 8px 4px;
+    font-size: 10.5px;
+    align-items: center;
+    text-align: center;
+    min-height: 52px;
+    justify-content: center;
+  }
+  .nav-item.active {
+    box-shadow: none;
+  }
+  .nav-ico {
+    font-size: 19px;
+  }
+  .nav-label {
+    line-height: 1.1;
+  }
+
   .sidebar-foot {
     margin: 0;
+  }
+  .streak {
+    padding: 6px 10px;
+    font-size: 12.5px;
+    border-radius: 9px;
+  }
+
+  /* İçerik: üst şerit + alt tab bar için boşluk bırak */
+  .content {
+    padding: calc(56px + env(safe-area-inset-top)) 14px
+      calc(78px + env(safe-area-inset-bottom));
+  }
+
+  .page-head {
+    margin-bottom: 16px;
+  }
+  .page-title {
+    font-size: 21px;
+  }
+
+  .topic-grid {
+    grid-template-columns: 1fr;
+  }
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ring-wrap {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Dokunma hedeflerini büyüt */
+  .btn,
+  .icon-btn,
+  .status-opt,
+  .upload-btn {
+    min-height: 42px;
+  }
+  .icon-btn {
+    padding: 10px;
+    font-size: 17px;
+  }
+  .task-check {
+    width: 24px;
+    height: 24px;
+  }
+
+  .status-select {
+    flex-direction: column;
+  }
+
+  .result-form {
+    width: 100%;
+  }
+  .result-form .field {
+    flex: 1;
+    min-width: 90px;
+  }
+  .result-form input.small {
+    width: 100%;
+  }
+  .result-form .field:has(#resDate) {
+    flex-basis: 100%;
+  }
+  #resDate {
+    width: 100%;
+  }
+  #addResult {
+    width: 100%;
+  }
+
+  .task-input-row {
+    flex-direction: column;
+  }
+  .task-input-row input,
+  .task-input-row select,
+  .task-input-row button {
+    width: 100%;
+  }
+
+  .recent-row,
+  .task-row {
+    flex-wrap: wrap;
+  }
+
+  /* Konu kartı başlığı: taşmayı önle */
+  .topic-card-head {
+    flex-wrap: wrap;
+  }
+  .topic-name {
+    flex-basis: 100%;
+  }
+  .status-pill {
+    margin-left: 24px;
+  }
+}
+
+/* Modal: küçük ekranlarda tam ekran */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+  .modal {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-head {
+    padding: max(14px, env(safe-area-inset-top)) 16px 14px;
+    flex-shrink: 0;
+  }
+  .modal-body {
+    padding: 18px 16px;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-foot {
+    padding: 14px 16px max(14px, env(safe-area-inset-bottom));
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .modal-foot .btn {
+    flex: 1;
+  }
+  .file-cols {
+    grid-template-columns: 1fr;
   }
 }
