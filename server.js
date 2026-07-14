@@ -233,9 +233,10 @@ app.post('/api/topics/:id/files', upload.single('file'), (req, res) => {
   const original = fixTurkishFilename(req.file.originalname);
   const dateStamp = today();
   const kindLabel = kind === 'notes' ? 'not' : 'test';
+  const ext = /\.(jpe?g)$/i.test(original) ? '.jpg' : '.pdf';
   // örn. modal-verbs_test_2026-07-13.pdf  (çakışmayı önlemek için kısa id eki)
   const base = slugify(topic.name) + '_' + kindLabel + '_' + dateStamp;
-  const storedName = base + '_' + store.id() + '.pdf';
+  const storedName = base + '_' + store.id() + ext;
   const fullPath = path.join(dir, storedName);
   fs.writeFileSync(fullPath, req.file.buffer);
 

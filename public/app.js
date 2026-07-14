@@ -5,15 +5,19 @@
  * ========================================================================= */
 
 const SECTION_META = {
-  grammar: { title: 'Grammar', sub: 'Gramer konuları', icon: '📚' },
-  questionTypes: { title: 'Soru Tipleri', sub: 'Sınav soru tipleri', icon: '🧩' },
+  grammar: { title: 'Grammar', sub: 'Gramer konuları' },
+  questionTypes: { title: 'Soru Tipleri', sub: 'Sınav soru tipleri' },
 };
 
 const STATUS_META = {
-  red: { label: 'Çalışılmadı', dot: '🔴' },
-  yellow: { label: 'Çalışılıyor', dot: '🟡' },
-  green: { label: 'Pekişti', dot: '🟢' },
+  red: { label: 'Çalışılmadı' },
+  yellow: { label: 'Çalışılıyor' },
+  green: { label: 'Pekişti' },
 };
+
+function statusDot(status) {
+  return `<span class="status-dot ${status}"></span>`;
+}
 
 let state = null;
 let currentView = 'dashboard';
@@ -170,9 +174,9 @@ function distBar(counts) {
       ${seg(counts.green, 'green')}${seg(counts.yellow, 'yellow')}${seg(counts.red, 'red')}
     </div>
     <div class="dist-legend">
-      <span><i class="dot" style="background:var(--green)"></i>Pekişti ${counts.green}</span>
-      <span><i class="dot" style="background:var(--yellow)"></i>Çalışılıyor ${counts.yellow}</span>
-      <span><i class="dot" style="background:var(--red)"></i>Çalışılmadı ${counts.red}</span>
+      <span>${statusDot('green')} Pekişti ${counts.green}</span>
+      <span>${statusDot('yellow')} Çalışılıyor ${counts.yellow}</span>
+      <span>${statusDot('red')} Çalışılmadı ${counts.red}</span>
     </div>`;
 }
 
@@ -198,28 +202,23 @@ function renderDashboard() {
     </div>
 
     <div class="grid stat-grid" style="margin-bottom:16px">
-      <div class="card stat-card">
-        <div class="ring-wrap">
-          <div class="ring" style="--p:${pct}">
-            <div class="ring-label"><b>${pct}%</b><span>hazır</span></div>
-          </div>
-          <div>
-            <div class="stat-label">Genel İlerleme</div>
-            <div class="stat-value">${greenTotal}/${totalTopics}</div>
-            <div class="stat-hint">konu pekişti</div>
-          </div>
+      <div class="stat-card">
+        <div class="stat-label">Genel İlerleme</div>
+        <div class="progress-block">
+          <div class="stat-value">${pct}%</div>
+          <div class="stat-hint">${greenTotal}/${totalTopics} konu pekişti</div>
         </div>
       </div>
 
-      <div class="card stat-card">
-        <div class="stat-label">📚 Grammar</div>
+      <div class="stat-card">
+        <div class="stat-label">Grammar</div>
         <div class="stat-value">${g.green}/${g.green + g.yellow + g.red}</div>
         <div class="stat-hint">pekişen konu</div>
         ${distBar(g)}
       </div>
 
-      <div class="card stat-card">
-        <div class="stat-label">🧩 Soru Tipleri</div>
+      <div class="stat-card">
+        <div class="stat-label">Soru Tipleri</div>
         <div class="stat-value">${q.green}/${q.green + q.yellow + q.red}</div>
         <div class="stat-hint">pekişen tip</div>
         ${distBar(q)}
@@ -228,9 +227,7 @@ function renderDashboard() {
 
     <div class="two-col">
       <div class="card">
-        <h4 style="margin:0 0 14px;color:var(--muted);text-transform:uppercase;font-size:13px;letter-spacing:.5px">
-          Son Çözülen Testler
-        </h4>
+        <h4 class="dashboard-h4">Son Çözülen Testler</h4>
         ${
           recent.length
             ? `<div class="recent-list">${recent
@@ -240,7 +237,7 @@ function renderDashboard() {
                   return `
                   <div class="recent-row">
                     <span class="recent-topic" data-open="${r.topicId}">${esc(r.topicName)}</span>
-                    <span class="tag">${SECTION_META[r.section].icon} ${fmtDate(r.date)}</span>
+                    <span class="tag">${fmtDate(r.date)}</span>
                     <b style="color:${c}">${r.correct}/${r.total}</b>
                   </div>`;
                 })
@@ -250,15 +247,13 @@ function renderDashboard() {
       </div>
 
       <div class="card">
-        <h4 style="margin:0 0 14px;color:var(--muted);text-transform:uppercase;font-size:13px;letter-spacing:.5px">
-          Bugünün Görevleri (${todaysDone}/${todays.length})
-        </h4>
+        <h4 class="dashboard-h4">Bugünün Görevleri (${todaysDone}/${todays.length})</h4>
         ${
           todays.length
             ? `<div>${todays
                 .map(
                   (t) => `
-              <div class="task-row ${t.done ? 'done' : ''}" style="margin-bottom:6px;padding:10px 12px">
+              <div class="task-row ${t.done ? 'done' : ''}" style="margin-bottom:0">
                 <input type="checkbox" class="task-check" data-toggle="${t.id}" ${
                     t.done ? 'checked' : ''
                   }/>
@@ -284,26 +279,23 @@ function renderDashboard() {
 function topicCard(topic, section) {
   const st = STATUS_META[topic.status];
   const last = lastResult(topic);
-  const fileCount = topic.notes.length + topic.tests.length;
   return `
     <div class="topic-card" draggable="true" data-topic="${topic.id}" data-section="${section}">
-      <div class="topic-card-head">
-        <span class="topic-drag" title="Sürükle">⠿</span>
-        <span class="topic-name" data-open="${topic.id}" style="flex:1">${esc(topic.name)}</span>
-        <span class="status-pill ${topic.status}">${st.dot} ${st.label}</span>
-      </div>
+      <span class="topic-drag" title="Sürükle">⠿</span>
+      <span class="topic-name" data-open="${topic.id}">${esc(topic.name)}</span>
       <div class="topic-meta">
-        <span>📄 ${topic.notes.length} not</span>
-        <span>📝 ${topic.tests.length} test</span>
-        <span>📊 ${topic.results.length} sonuç</span>
+        <span>${topic.notes.length} not</span>
+        <span>${topic.tests.length} test</span>
+        <span>${topic.results.length} sonuç</span>
       </div>
       ${
         last
           ? `<div class="mini-score">Son: <b>${last.correct}/${last.total}</b> · ${fmtDate(
               last.date
             )}</div>`
-          : `<div class="mini-score" style="opacity:.6">Henüz test sonucu yok</div>`
+          : ''
       }
+      <span class="status-pill ${topic.status}">${statusDot(topic.status)} ${st.label}</span>
     </div>`;
 }
 
@@ -313,8 +305,8 @@ function renderSection(section) {
   return `
     <div class="page-head">
       <div>
-        <h1 class="page-title">${meta.icon} ${meta.title}</h1>
-        <p class="page-sub">${topics.length} konu · sürükleyerek sırala, kartlara tıklayarak aç</p>
+        <h1 class="page-title">${meta.title}</h1>
+        <p class="page-sub">${topics.length} konu · sürükleyerek sırala, satıra tıklayarak aç</p>
       </div>
       <button class="btn btn-primary" data-add-topic="${section}">+ Yeni Konu Ekle</button>
     </div>
@@ -336,11 +328,13 @@ function renderTasks() {
   });
   const dates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
 
-  const topicOptions = allTopics()
-    .map(
-      (t) =>
-        `<option value="${t.id}">${SECTION_META[t.section].icon} ${esc(t.name)}</option>`
-    )
+  const topicOptions = ['grammar', 'questionTypes']
+    .map((section) => {
+      const opts = state.topics[section]
+        .map((t) => `<option value="${t.id}">${esc(t.name)}</option>`)
+        .join('');
+      return opts ? `<optgroup label="${SECTION_META[section].title}">${opts}</optgroup>` : '';
+    })
     .join('');
 
   const todayKey = today();
@@ -362,7 +356,7 @@ function renderTasks() {
                 )}</span>`
               : ''
           }
-          <button class="icon-btn" data-del-task="${t.id}" title="Sil">🗑</button>
+          <button class="icon-btn" data-del-task="${t.id}" title="Sil">×</button>
         </div>`
         )
         .join('');
@@ -375,8 +369,8 @@ function renderTasks() {
   return `
     <div class="page-head">
       <div>
-        <h1 class="page-title">✅ Günlük Görevler</h1>
-        <p class="page-sub">🔥 ${computeStreak()} gün üst üste çalışma serisi</p>
+        <h1 class="page-title">Günlük Görevler</h1>
+        <p class="page-sub"><b class="mono-accent">${computeStreak()}</b> gün üst üste çalışma serisi</p>
       </div>
     </div>
 
@@ -396,10 +390,10 @@ function renderTasks() {
 // Topic modal
 // ---------------------------------------------------------------------------
 
-function getFileIcon(filename) {
-  if (/\.pdf$/i.test(filename)) return '📄';
-  if (/\.(jpg|jpeg)$/i.test(filename)) return '🖼️';
-  return '📎';
+function getFileExt(filename) {
+  if (/\.pdf$/i.test(filename)) return 'PDF';
+  if (/\.(jpg|jpeg)$/i.test(filename)) return 'JPG';
+  return '?';
 }
 
 function fileList(topic, kind) {
@@ -411,11 +405,12 @@ function fileList(topic, kind) {
     .map(
       (f) => `
       <div class="file-row">
+        <span class="file-ext">${getFileExt(f.originalName)}</span>
         <span class="file-name" data-view-file="${topic.id}/${f.id}" title="${esc(
         f.originalName
-      )}">${getFileIcon(f.originalName)} ${esc(f.originalName)}</span>
+      )}">${esc(f.originalName)}</span>
         <span class="file-date">${fmtDate(f.date)}</span>
-        <button class="icon-btn" data-del-file="${topic.id}/${f.id}/${kind}" title="Sil">🗑</button>
+        <button class="icon-btn" data-del-file="${topic.id}/${f.id}/${kind}" title="Sil">×</button>
       </div>`
     )
     .join('')}</div>`;
@@ -437,7 +432,7 @@ function resultList(topic) {
         <div class="result-bar"><i style="width:${p}%;background:${c}"></i></div>
         <span class="result-score">${r.correct}/${r.total}</span>
         <span class="result-pct">${p}%</span>
-        <button class="icon-btn" data-del-result="${topic.id}/${r.id}" title="Sil">🗑</button>
+        <button class="icon-btn" data-del-result="${topic.id}/${r.id}" title="Sil">×</button>
       </div>`;
     })
     .join('');
@@ -455,7 +450,7 @@ function openTopic(id) {
       <div class="modal" role="dialog">
         <div class="modal-head">
           <input class="modal-title-in" id="topicName" value="${esc(topic.name)}" />
-          <button class="icon-btn" id="closeModal" title="Kapat" style="font-size:20px">✕</button>
+          <button class="icon-btn" id="closeModal" title="Kapat" style="font-size:20px">×</button>
         </div>
         <div class="modal-body">
 
@@ -467,7 +462,7 @@ function openTopic(id) {
                   (s) =>
                     `<button class="status-opt ${s} ${
                       topic.status === s ? 'sel' : ''
-                    }" data-status="${s}">${STATUS_META[s].dot} ${STATUS_META[s].label}</button>`
+                    }" data-status="${s}">${statusDot(s)} ${STATUS_META[s].label}</button>`
                 )
                 .join('')}
             </div>
@@ -475,7 +470,7 @@ function openTopic(id) {
 
           <div class="section-block file-cols">
             <div>
-              <h4>📄 Notlar</h4>
+              <h4>Notlar</h4>
               <label class="btn btn-sm upload-btn" style="display:inline-block">
                 + Yükle (PDF/JPG)
                 <input type="file" accept=".pdf,image/jpeg,.jpg" data-upload="notes" />
@@ -483,7 +478,7 @@ function openTopic(id) {
               ${fileList(topic, 'notes')}
             </div>
             <div>
-              <h4>📝 Testler</h4>
+              <h4>Testler</h4>
               <label class="btn btn-sm upload-btn" style="display:inline-block">
                 + Yükle (PDF/JPG)
                 <input type="file" accept=".pdf,image/jpeg,.jpg" data-upload="tests" />
@@ -493,7 +488,7 @@ function openTopic(id) {
           </div>
 
           <div class="section-block">
-            <h4>📊 Test Sonuçları</h4>
+            <h4>Test Sonuçları</h4>
             <div class="result-form">
               <div class="field">
                 <label>Doğru</label>
@@ -513,7 +508,7 @@ function openTopic(id) {
           </div>
 
           <div class="section-block">
-            <h4>🖊 Kişisel Not</h4>
+            <h4>Kişisel Not</h4>
             <textarea id="personalNote" placeholder="Hızlı notlar, hatırlatmalar, zayıf noktalar...">${esc(
               topic.personalNote
             )}</textarea>
@@ -521,7 +516,7 @@ function openTopic(id) {
 
         </div>
         <div class="modal-foot">
-          <button class="btn btn-danger" id="deleteTopic">🗑 Konuyu Sil</button>
+          <button class="btn btn-danger" id="deleteTopic">Konuyu Sil</button>
           <button class="btn btn-primary" id="doneModal">Kapat</button>
         </div>
       </div>
