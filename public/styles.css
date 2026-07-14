@@ -565,6 +565,17 @@ button {
   opacity: 0.65;
   margin-top: 2px;
 }
+/* Masaüstünde sayaç, takvimle aynı boya esnemesin — kompakt kalsın.
+   (Mobilde tek sütun olduğu için olduğu gibi bırakılıyor.) */
+@media (min-width: 901px) {
+  .exam-countdown {
+    height: auto;
+    align-self: start;
+  }
+  .exam-countdown-num {
+    font-size: 34px;
+  }
+}
 
 /* -------- Takvim -------- */
 .cal-card {
