@@ -318,11 +318,6 @@ function renderDashboard() {
       </div>
     </div>
 
-    <div class="two-col" style="margin-bottom:16px">
-      ${renderCalendar()}
-      ${renderExamCountdown()}
-    </div>
-
     <div class="grid stat-grid" style="margin-bottom:16px">
       <div class="stat-card stat-ring-card">
         <div class="progress-ring" style="background:conic-gradient(var(--accent) ${pct * 3.6}deg, var(--ring-track) 0)">
@@ -394,6 +389,11 @@ function renderDashboard() {
             : `<div class="empty-state">Bugün için görev yok. <br/><span style="font-size:13px">Günlük Görevler'den ekle.</span></div>`
         }
       </div>
+    </div>
+
+    <div class="two-col" style="margin-top:16px">
+      ${renderCalendar()}
+      ${renderExamCountdown()}
     </div>`;
 }
 
