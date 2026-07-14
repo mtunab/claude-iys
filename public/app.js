@@ -753,13 +753,32 @@ function wireModal(topic) {
         const file = inp.files[0];
         if (!file) return;
         const kind = inp.dataset.upload;
+        inp.value = ''; // aynı dosyayı tekrar seçebilmek için hemen sıfırla
+
+        // Bulut kaynaklı (ör. Google Drive) dosyalar cihaza tam inmemiş
+        // olabilir; fetch sırasında akış hâlinde okunmaya çalışılırsa
+        // bağlantı "Failed to fetch" ile kopabiliyor. Göndermeden önce
+        // dosyayı tamamen belleğe okuyarak bunu önlüyoruz.
+        let buffer;
+        try {
+          buffer = await file.arrayBuffer();
+        } catch (e) {
+          throw new Error('Dosya okunamadı. Lütfen dosyayı önce cihazınıza indirip tekrar deneyin.');
+        }
+
         const fd = new FormData();
-        fd.append('file', file);
+        fd.append('file', new Blob([buffer], { type: file.type }), file.name);
         fd.append('kind', kind);
-        const res = await fetch('/api/topics/' + topic.id + '/files', {
-          method: 'POST',
-          body: fd,
-        });
+
+        let res;
+        try {
+          res = await fetch('/api/topics/' + topic.id + '/files', {
+            method: 'POST',
+            body: fd,
+          });
+        } catch (e) {
+          throw new Error('Yükleme başarısız (bağlantı koptu). Lütfen tekrar deneyin.');
+        }
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || 'Yükleme başarısız.');
         await refresh();
