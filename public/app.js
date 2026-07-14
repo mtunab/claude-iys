@@ -822,10 +822,38 @@ render = function () {
 };
 
 // ---------------------------------------------------------------------------
+// Tema (açık/koyu)
+// ---------------------------------------------------------------------------
+
+const THEME_KEY = 'iys-theme';
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#1b1815' : '#f4f1ea');
+}
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+// ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
 
 async function boot() {
+  initTheme();
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
   document.querySelectorAll('.nav-item').forEach((b) => {
     b.addEventListener('click', () => navigate(b.dataset.view));
   });
